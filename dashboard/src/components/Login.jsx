@@ -17,7 +17,7 @@ const Login = () => {
     try {
       await axios
         .post(
-          "http://localhost:5000/api/v1/user/login",
+          "https://clinic-hkjx.vercel.app/api/v1/user/login",
           { email, password, role: "Admin"  },
           {
             withCredentials: true,

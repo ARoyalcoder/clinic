@@ -14,15 +14,15 @@ import axios from "axios";
 import { Context } from "./main";
 import Login from "./Pages/Login";
 import WhatsAppButton from "./components/WhatsAppButton.jsx";
+
 const App = () => {
-  const { isAuthenticated, setIsAuthenticated, setUser } =
-    useContext(Context);
+  const { isAuthenticated, setIsAuthenticated, setUser } = useContext(Context);
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/v1/user/patient/me",
+          "https://clinic-hkjx.vercel.app/api/v1/user/patient/me",
           {
             withCredentials: true,
           }
@@ -49,7 +49,7 @@ const App = () => {
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
         </Routes>
-          <WhatsAppButton/>
+        <WhatsAppButton />
         <Footer />
         <ToastContainer position="top-center" />
       </Router>
