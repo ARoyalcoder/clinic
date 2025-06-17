@@ -35,7 +35,7 @@ app.use(
   })
 );
 
-app.get("/t",(req,res)=>res.send("okkk"))
+app.get("/",(req,res)=>res.send("okkk"))
 app.options("*", cors());
 
 app.use(cookieParser());
