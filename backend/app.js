@@ -22,15 +22,21 @@ console.log("Allowed Origins:", allowedOrigins); // Debug
 
 app.use(
   cors({
-    origin: [  "https://clinic-snowy-ten.vercel.app",
-  "https://clinic-ffzp.vercel.app"],
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"]
   })
 );
 
-// app.options("*", cors());
+app.get("/t",(req,res)=>res.send("okkk"))
+app.options("*", cors());
 
 app.use(cookieParser());
 app.use(express.json());
