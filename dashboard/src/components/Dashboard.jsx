@@ -17,16 +17,24 @@ const Dashboard = () => {
           "https://clinic-hkjx.vercel.app/api/v1/appointment/getall",
           { withCredentials: true }
         );
-        if (Array.isArray(data.appointments)) {
+
+        if (
+          data &&
+          typeof data === "object" &&
+          Array.isArray(data.appointments)
+        ) {
           setAppointments(data.appointments);
         } else {
-          setAppointments([]);
-          toast.error("Invalid data received from server.");
+          throw new Error("Invalid format for appointment data");
         }
       } catch (error) {
-        console.error(error);
+        console.error("Appointment Fetch Error:", error);
         setAppointments([]);
-        toast.error("Failed to fetch appointments");
+        toast.error(
+          error.response?.data?.message ||
+            error.message ||
+            "Failed to fetch appointments"
+        );
       }
     };
     fetchAppointments();
@@ -39,16 +47,19 @@ const Dashboard = () => {
         { status },
         { withCredentials: true }
       );
-      setAppointments((prevAppointments) =>
-        prevAppointments.map((appointment) =>
+
+      setAppointments((prev) =>
+        prev.map((appointment) =>
           appointment._id === appointmentId
             ? { ...appointment, status }
             : appointment
         )
       );
-      toast.success(data.message);
+      toast.success(data.message || "Status updated successfully");
     } catch (error) {
-      toast.error(error.response?.data?.message || "Error updating status");
+      toast.error(
+        error.response?.data?.message || "Error updating appointment status"
+      );
     }
   };
 
@@ -56,17 +67,20 @@ const Dashboard = () => {
     return <Navigate to="/login" />;
   }
 
+  const fullName = admin
+    ? `${admin.firstName || "Doctor"} ${admin.lastName || ""}`.trim()
+    : "Doctor";
+
   return (
     <section className="dashboard page">
+      {/* Top Banner */}
       <div className="banner">
         <div className="firstBox">
-          <img src="/doc.png" alt="docImg" />
+          <img src="/doc.png" alt="Doctor Illustration" />
           <div className="content">
             <div>
               <p>Hello,</p>
-              <h5>
-                {admin ? `${admin.firstName} ${admin.lastName}` : "Doctor"}
-              </h5>
+              <h5>{fullName}</h5>
             </div>
             <p>
               Welcome to your dashboard. Here you can manage appointments and
@@ -74,16 +88,19 @@ const Dashboard = () => {
             </p>
           </div>
         </div>
+
         <div className="secondBox">
           <p>Total Appointments</p>
-          <h3>{Array.isArray(appointments) ? appointments.length : 0}</h3>
+          <h3>{appointments?.length || 0}</h3>
         </div>
+
         <div className="thirdBox">
           <p>Registered Doctors</p>
-          <h3>1</h3> {/* Update if needed */}
+          <h3>1</h3>
         </div>
       </div>
 
+      {/* Appointments Table */}
       <div className="banner">
         <h5>Appointments</h5>
         <table>
@@ -98,31 +115,33 @@ const Dashboard = () => {
             </tr>
           </thead>
           <tbody>
-            {Array.isArray(appointments) && appointments.length > 0 ? (
+            {appointments.length > 0 ? (
               appointments.map((appointment) => (
                 <tr key={appointment._id}>
                   <td>
-                    {appointment.firstName} {appointment.lastName}
+                    {appointment.firstName || ""} {appointment.lastName || ""}
                   </td>
                   <td>
                     {appointment.appointment_date
-                      ? new Date(appointment.appointment_date).toLocaleString()
+                      ? new Date(
+                          appointment.appointment_date
+                        ).toLocaleString()
                       : "N/A"}
                   </td>
                   <td>{appointment.phone || "N/A"}</td>
                   <td>{appointment.symptoms || "N/A"}</td>
                   <td>
                     <select
-                      className={
-                        appointment.status === "Pending"
-                          ? "value-pending"
-                          : appointment.status === "Accepted"
-                          ? "value-accepted"
-                          : "value-rejected"
-                      }
-                      value={appointment.status}
+                      value={appointment.status || "Pending"}
                       onChange={(e) =>
                         handleUpdateStatus(appointment._id, e.target.value)
+                      }
+                      className={
+                        appointment.status === "Accepted"
+                          ? "value-accepted"
+                          : appointment.status === "Rejected"
+                          ? "value-rejected"
+                          : "value-pending"
                       }
                     >
                       <option value="Pending">Pending</option>
@@ -141,7 +160,9 @@ const Dashboard = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="6">No Appointments Found!</td>
+                <td colSpan="6" style={{ textAlign: "center" }}>
+                  No Appointments Found!
+                </td>
               </tr>
             )}
           </tbody>
