@@ -17,8 +17,14 @@ const Dashboard = () => {
           "https://clinic-hkjx.vercel.app/api/v1/appointment/getall",
           { withCredentials: true }
         );
-        setAppointments(data.appointments);
+        if (Array.isArray(data.appointments)) {
+          setAppointments(data.appointments);
+        } else {
+          setAppointments([]);
+          toast.error("Invalid data received from server.");
+        }
       } catch (error) {
+        console.error(error);
         setAppointments([]);
         toast.error("Failed to fetch appointments");
       }
@@ -47,7 +53,7 @@ const Dashboard = () => {
   };
 
   if (!isAuthenticated) {
-    return <Navigate to={"/login"} />;
+    return <Navigate to="/login" />;
   }
 
   return (
@@ -70,11 +76,11 @@ const Dashboard = () => {
         </div>
         <div className="secondBox">
           <p>Total Appointments</p>
-          <h3>{appointments.length}</h3>
+          <h3>{Array.isArray(appointments) ? appointments.length : 0}</h3>
         </div>
         <div className="thirdBox">
           <p>Registered Doctors</p>
-          <h3>1</h3> {/* Replace with dynamic value if needed */}
+          <h3>1</h3> {/* Update if needed */}
         </div>
       </div>
 
@@ -92,12 +98,16 @@ const Dashboard = () => {
             </tr>
           </thead>
           <tbody>
-            {appointments.length > 0 ? (
+            {Array.isArray(appointments) && appointments.length > 0 ? (
               appointments.map((appointment) => (
                 <tr key={appointment._id}>
-                  <td>{`${appointment.firstName} ${appointment.lastName}`}</td>
                   <td>
-                    {new Date(appointment.appointment_date).toLocaleString()}
+                    {appointment.firstName} {appointment.lastName}
+                  </td>
+                  <td>
+                    {appointment.appointment_date
+                      ? new Date(appointment.appointment_date).toLocaleString()
+                      : "N/A"}
                   </td>
                   <td>{appointment.phone || "N/A"}</td>
                   <td>{appointment.symptoms || "N/A"}</td>
