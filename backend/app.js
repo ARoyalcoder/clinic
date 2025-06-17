@@ -22,13 +22,8 @@ console.log("Allowed Origins:", allowedOrigins); // Debug
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
+    origin: [  "https://clinic-snowy-ten.vercel.app",
+  "https://clinic-ffzp.vercel.app"],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"]
